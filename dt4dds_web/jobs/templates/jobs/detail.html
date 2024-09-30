@@ -1,0 +1,213 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+<script>
+
+	{% if job.state != "FI" %}
+
+	var state = "{{ job.state }}";
+
+	(function worker() {
+		$.ajax({
+			url: "{% url 'jobs:status' uid=id %}", 
+			success: function(data) {
+				var info = JSON.parse(data);
+				if (info["state"] != state) {
+					window.location.reload();
+				} else {
+					if (info["state"] != "WA") {
+						document.getElementById("status-running-time").innerHTML = info["time"];
+					} else if (info["state"] != "RU") {
+						document.getElementById("status-queue-length").innerHTML = info["queue"];
+					}
+				}
+			},
+			complete: function() {
+			// Schedule the next request when the current one's complete
+			setTimeout(worker, 1000);
+			}
+		});
+	})();
+	{% endif %}
+
+
+
+
+</script>
+{% endblock add_foot %}
+
+{% block content_body %}
+
+<div class="row g-3">
+	
+	<div class="col-sm-12 text-center">
+	{% if job.state == "BL" %}
+		<span class="btn btn-danger position-relative btn-lg" style="pointer-events: none;">
+			Blocked
+		</span>
+
+	{% elif job.state == "WA" %}
+		<span class="btn btn-warning position-relative btn-lg" style="pointer-events: none;">
+			Queued
+			<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="status-queue-length">
+			{{ queue_length }}
+			<span class="visually-hidden">position in queue</span>
+			</span>
+		</span>
+		
+	{% elif job.state == "RU" %}
+		<span class="btn btn-primary position-relative btn-lg" style="pointer-events: none;">
+			<div class="spinner-border me-1" style="width: 1.2rem; height: 1.2rem;" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			Running
+			<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="status-running-time">
+				{{ running_time }}
+				<span class="visually-hidden">time running</span>
+			</span>
+		</span>
+
+	{% elif job.state == "FI" %}
+		<span class="btn btn-success position-relative btn-lg" style="pointer-events: none;">
+			Finished
+		</span>
+
+	{% elif job.state == "FA" %}
+		<span class="btn btn-danger position-relative btn-lg" style="pointer-events: none;">
+			Failed
+		</span>
+	{% endif %}
+	</div>
+	
+	<p class="col-sm-12 fs-5 text-muted text-center"><strong>{{ submission.name }}</strong><br>Submission ID: {{ id }}</p>
+</div>
+
+<br>
+
+
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+	<div class="col d-flex align-items-stretch">
+	  <div class="card mb-4 rounded-3 shadow-sm w-100">
+		<div class="card-header py-3">
+		  <h4 class="my-0 fw-normal">Access</h4>
+		</div>
+		<div class="card-body d-flex flex-column justify-content-between">
+			<p class="">
+				The output of your submission will be available on this page. Reload to update your submission's status.
+				</p>
+		  <div class="btn-group w-100 align-self-end" role="group">
+			<button type="button" class="w-50 btn btn-outline-secondary" onClick="navigator.clipboard.writeText(document.location.href);">Copy link</button>
+			<button type="button" class="w-50 btn btn-outline-secondary" onClick="window.location.reload();">Refresh</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<div class="col d-flex align-items-stretch">
+	  <div class="card mb-4 rounded-3 shadow-sm w-100">
+		<div class="card-header py-3">
+		  <h4 class="my-0 fw-normal">Output</h4>
+		</div>
+		<div class="card-body d-flex flex-column justify-content-between">
+			<p class="">
+				Once your submission is finished, its results are available for download here.
+				</p>
+			<div class="align-self-end w-100">
+				<div class="pb-1"><small class="text-form text-muted">
+				{% if job.state == "FI" %}
+				Your results are ready.
+				{% elif job.state == "FA" %}
+				Results unavailable, the job has failed.
+				{% else %}
+				Results are ready when the job finishes.
+				{% endif %}
+				</small></div>
+				{% if job.state == "FI" %}
+				<a href="{% url 'jobs:results' uid=id %}"><button class="btn btn-success position-relative btn-lg w-100">
+					Download output
+				</button></a>
+				{% else %}
+				<button class="btn btn-success position-relative btn-lg w-100" disabled>
+					Download output
+				</button>
+				{% endif %}
+			</div>
+		</div>
+	  </div>
+	</div>
+	<div class="col d-flex align-items-stretch">
+	  <div class="card mb-4 rounded-3 shadow-sm w-100">
+		<div class="card-header py-3">
+		  <h4 class="my-0 fw-normal">Cancel/Delete</h4>
+		</div>
+		<div class="card-body d-flex flex-column justify-content-between">
+			<p class="">
+				You can cancel your submission or delete all data from finished submissions. All submissions are automatically deleted after 1 week.
+			</p>
+		  <a href="{% url 'jobs:delete' uid=id %}"><button type="button" class="align-self-end w-100 btn btn-outline-danger">
+			{% if job.state == "FI" %}
+				Delete all data
+			{% elif job.state == "FA" %}
+				Delete all data
+			{% else %}
+				Cancel submission
+			{% endif %}
+		  </button></a>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+<br>
+
+<div class="accordion accordion-flush" id="accordionExample">
+	<div class="accordion-item">
+	  <h2 class="accordion-header" id="flush-headingOne">
+		<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+		  What does the model output include?
+		</button>
+	  </h2>
+	  <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+		<div class="accordion-body">
+			The downloadable output is a zip-compressed folder containing:
+			<ul class="pt-3">
+				<li>The submitted oligo sequences as a text file</li>
+				<li>The settings used for simulation as a text file</li>
+				<li>The generated sequencing files (fastq, gzipped) for both reads as R1.fq.gz and R2.fq.gz</li>
+			</ul>
+		</div>
+	  </div>
+	</div>
+	<div class="accordion-item">
+	  <h2 class="accordion-header" id="flush-headingTwo">
+		<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+		  How long does simulation of my submission take?
+		</button>
+	  </h2>
+	  <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+		<div class="accordion-body">
+			Simulation of both basic scenarios and advanced submissions takes only 1-2 minutes on average. If there are other submissions already in queue, the status indicator shows your current queue position.
+		</div>
+	  </div>
+	</div>
+	<div class="accordion-item">
+	  <h2 class="accordion-header" id="flush-headingThree">
+		<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+			What are possible reasons that my job failed?
+		</button>
+	  </h2>
+	  <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+		<div class="accordion-body">
+			In extreme cases (maximum number of sequences, PCR cycles, low-fidelity synthesis), the simulation might be memory-limited. In such cases, choose less extreme simulation conditions or simulate the workflow locally.
+			<br>
+			Jobs running for more than 15 mins are also terminated automatically.
+		</div>
+	  </div>
+	</div>
+  </div>
+
+
+{% endblock content_body %}

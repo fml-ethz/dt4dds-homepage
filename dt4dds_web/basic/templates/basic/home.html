@@ -1,0 +1,151 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+{% endblock add_foot %}
+
+{% block content_body %}
+
+
+<div class="row row-cols-1 row-cols-md-1 mb-3 text-center">
+	<div class="col">
+	  <div class="card mb-4 rounded-3 shadow-sm border-primary">
+		<div class="card-header py-3 text-white bg-primary border-primary">
+		  <h4 class="my-0 fw-normal">New</h4>
+		</div>
+		<div class="card-body">
+			<h1 class="card-title">Challenges</h1>
+			<p>Simulate current challenges in error-correction coding for DNA data storage
+            <br>and submit your codec for the leaderboard</p>
+			<span><strong>Open challenges:</strong></span>
+			<ul class="list-unstyled mb-4">
+			  <li>Photolithographic DNA synthesis</li>
+			  <li>DNA decay from long-term storage</li>
+			</ul>
+            <div class="row row-cols-1 row-cols-md-3 text-center">
+                <div class="col">
+                    <p><small class="text-muted fw-light">Up to 10'000 oligos</small></p>
+                    <a href="{% url 'jobs:challenge' %}">
+                        <button type="button" class="w-100 btn btn-lg btn-primary">Start</button>
+                    </a>
+                </div>
+                <div class="col">
+                    <p><small class="text-muted fw-light">Compare against other codecs</small></p>
+                    <a href="{% url 'leaderboard:overview' %}">
+                        <button type="button" class="w-100 btn btn-lg btn-outline-primary">Leaderboard</button>
+                    </a>
+                </div>
+                <div class="col">
+                    <p><small class="text-muted fw-light">Also available offline</small></p>
+                    <a href="{% url 'basic:challenge' %}">
+                        <button type="button" class="w-100 btn btn-lg btn-outline-primary">More info</button>
+                    </a>
+                </div>
+            </div>
+		</div>
+	  </div>
+	</div>
+</div>
+
+
+
+
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+	<div class="col">
+	  <div class="card mb-4 rounded-3 shadow-sm">
+		<div class="card-header py-3">
+		  <h4 class="my-0 fw-normal">Basic</h4>
+		</div>
+		<div class="card-body">
+			<h1 class="card-title">Scenarios</h1>
+			<p>For simulation of pre-defined, basic experimental workflows</p>
+			<span><strong>Choose from:</strong></span>
+			<ul class="list-unstyled mb-4">
+			  <li>Density benchmark</li>
+			  <li>Overall worst case</li>
+			  <li>Long-term storage</li>
+			  <li>High-density storage</li>
+			</ul>
+			<p><small class="text-muted fw-light">Up to 10'000 oligos</small></p>
+			<a href="{% url 'jobs:basic' %}">
+				<button type="button" class="w-100 btn btn-lg btn-primary">Start</button>
+			</a>
+		  </div>
+	  </div>
+	</div>
+	<div class="col">
+	  <div class="card mb-4 rounded-3 shadow-sm">
+		<div class="card-header py-3">
+		  <h4 class="my-0 fw-normal">Advanced</h4>
+		</div>
+		<div class="card-body">
+		  <h1 class="card-title">Flexible</h1>
+		  <p>Customize the simulation of a long-term storage workflow</p>
+		  <span><strong>Customize:</strong></span>
+		  <ul class="list-unstyled mb-4">
+			<li>Oligo pool synthesis</li>
+			<li>Amplification via PCR</li>
+			<li>Storage conditions</li>
+			<li>Sequencing-by-synthesis</li>
+		  </ul>
+		  <p><small class="text-muted fw-light">Up to 10'000 oligos</small></p>
+		  <a href="{% url 'jobs:advanced' %}">
+			<button type="button" class="w-100 btn btn-lg btn-primary">Start</button>
+		</a>
+		</div>
+	  </div>
+	</div>
+	<div class="col">
+	  <div class="card mb-4 rounded-3 shadow-sm border-primary">
+		<div class="card-header py-3 text-white bg-primary border-primary">
+		  <h4 class="my-0 fw-normal">Local</h4>
+		</div>
+		<div class="card-body">
+			<h1 class="card-title">Custom</h1>
+			<p>Simulate custom scenarios and workflows locally in Python</p>
+			<span><strong>Includes:</strong></span>
+			<ul class="list-unstyled mb-4">
+			  <li>Full control over model</li>
+			  <li>Advanced workflows</li>
+			  <li>Custom error rates & biases</li>
+			  <li>Faster & parallelizable</li>
+			</ul>
+			<p><small class="text-muted fw-light">No restrictions</small></p>
+		  <a href="{% url 'basic:about' %}">
+			<button type="button" class="w-100 btn btn-lg btn-outline-primary">More info</button>
+		  </a>
+		</div>
+	  </div>
+	</div>
+</div>
+
+<div class="container col-xxl-12 py-1">
+    <div class="row flex-lg-row-reverse align-items-center">
+      <div class="col-12 col-sm-12 col-lg-6 px-0">
+        <img src="/static/home_teaser.png" class="d-block mx-lg-auto img-fluid" loading="lazy">
+      </div>
+      <div class="col-lg-6 px-0">
+        <h1 class="display-6 fw-bold lh-1 mb-3 text-start">Simulate errors and biases in-silico</h1>
+        <p class="lead">
+            DT4DDS is a customizable, digital representation of widely-used DNA data storage workflows, enabling data-driven experimental design and rational design of redundancy for error-correction coding.
+            
+        </p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{% url 'jobs:basic' %}">
+                <button type="button" class="w-100 btn btn-lg btn-primary">Try it</button>
+            </a>
+            <a href="{% url 'basic:about' %}">
+                <button type="button" class="w-100 btn btn-lg btn-outline-primary">More info</button>
+              </a>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content_body %}

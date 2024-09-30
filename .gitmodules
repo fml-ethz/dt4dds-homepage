@@ -1,0 +1,6 @@
+[submodule "dt4dds_node/scenarios/dt4dds"]
+	path = dt4dds_node/scenarios/dt4dds
+	url = https://github.com/fml-ethz/dt4dds.git
+[submodule "dt4dds_node/scenarios/dt4dds-challenges"]
+	path = dt4dds_node/scenarios/dt4dds-challenges
+	url = https://github.com/fml-ethz/dt4dds-challenges.git

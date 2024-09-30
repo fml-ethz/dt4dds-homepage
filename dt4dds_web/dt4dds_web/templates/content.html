@@ -1,0 +1,23 @@
+{% extends 'main.html' %}
+{% load i18n %}
+
+{% block main %}
+<div class="container pb-5 pt-3 content">
+    <!-- Messages -->
+    {% include 'messages.html' %}
+
+    <!-- Title -->
+    <div class="pb-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal">{{ title|safe }}</h1>
+    </div>
+
+    <!-- Django content block -->
+    <main class="flex-shrink-0">
+        <div class="container">
+            {% block content_body %}
+            {% endblock content_body %}
+        </div>
+    </main>
+    </div>
+</div>
+{% endblock main %}

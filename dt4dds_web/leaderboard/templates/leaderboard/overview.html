@@ -1,0 +1,190 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+{% endblock add_foot %}
+
+{% block content_body %}
+
+<p class="fs-4 text-muted" style="text-align: justify;">
+    These leaderboards highlight the current state-of-the-art in error-correction coding for two emerging challenges for DNA data storage: photolithographic DNA synthesis and DNA decay. 
+</p>
+<p class="lead">
+    To participate in the challenges, you can submit your codec to the leaderboard. Please note the requirements described <a href="{% url 'basic:challenge' %}">here</a> and the FAQ at the bottom of this page.
+    The challenges and the Digital Twin for DNA Data Storage are based on the following publications:
+</p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. Challenges for error-correction coding in DNA data storage: photolithographic synthesis and DNA decay. bioRxiv 2024.07.04.602085 (2024). <a href="https://doi.org/10.1101/2024.07.04.602085">DOI:10.1101/2024.07.04.602085</a>
+</code></p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. A digital twin for DNA data storage based on comprehensive quantification of errors and biases. Nat Commun 14, 6026 (2023). <a href="https://doi.org/10.1038/s41467-023-41729-1">DOI:10.1038/s41467-023-41729-1</a>
+</code></p>
+
+<br>
+<div class="d-flex justify-content-around flex-wrap">
+    <a href="{% url 'jobs:challenge' %}"><button type="button" class="btn btn-outline-primary mb-3">Run a challenge online</button></a>
+    <a href="https://github.com/fml-ethz/dt4dds-challenges"><button type="button" class="btn btn-outline-primary mb-3">Run the challenges offline</button></a>
+    <a href="{% url 'basic:challenge' %}"><button type="button" class="btn btn-outline-primary mb-3">More information on challenges</button></a>
+</div>
+
+
+<br><br>
+<h2 class="mb-3">Challenge 1: Photolithographic Synthesis</h2>
+
+<table class="table align-middle">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Code rate</th>
+        <th scope="col">DOI</th>
+        <th scope="col">Verified?</th>
+        <th scope="col">More</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if leaderboard_photolithography %}
+        {% for entry in leaderboard_photolithography %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ entry.name }}</td>
+            <td>{{ entry.code_rate|floatformat:2 }} bit/nt</td>
+            <td>{{ entry.doi }}</td>
+            {% if entry.is_verified %}
+                <td><span class="badge bg-success">Verified</span></td>
+            {% else %}
+                <td><span class="badge bg-warning">Not verified</span></td>
+            {% endif %}
+            <td><a href="{% url 'leaderboard:detail' entry.uid %}"><button type="button" class="btn btn-outline-secondary btn-sm">Details</button>
+            </a></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <th scope="row">1</th>
+            <td>Nothing here yet!</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endif %}
+    </tbody>
+  </table>
+
+
+  <br><br>
+  <h2 class="mb-3">Challenge 2: DNA Decay</h2>
+
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Code rate</th>
+        <th scope="col">DOI</th>
+        <th scope="col">Verified?</th>
+        <th scope="col">More</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if leaderboard_decay %}
+        {% for entry in leaderboard_decay %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ entry.name }}</td>
+            <td>{{ entry.code_rate|floatformat:2 }} bit/nt</td>
+            <td>{{ entry.doi }}</td>
+            {% if entry.is_verified %}
+                <td><span class="badge bg-success">Verified</span></td>
+            {% else %}
+                <td><span class="badge bg-warning">Not verified</span></td>
+            {% endif %}
+            <td><a href="{% url 'leaderboard:detail' entry.uid %}"><button type="button" class="btn btn-outline-secondary btn-sm">Details</button>
+            </a></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <th scope="row">1</th>
+            <td>Nothing here yet!</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endif %}
+    </tbody>
+  </table>
+
+
+
+<br><br>
+<h1 class="mb-3">FAQ</h1>
+
+  <div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+          How do I submit my codec to the leaderboard?
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Before submitting your codec, make sure your submission fulfills the requirements described <a href="{% url 'basic:challenge' %}">here</a>.</strong>
+          If you are ready to submit your codec, please send an email with the following information to <a href="https://fml.ethz.ch/people/lecturer.html">Prof. Dr. Robert Grass</a> and <a href="https://fml.ethz.ch/people/PhDs/AG.html">Andreas Gimpel</a>:
+          <ul>
+              <li>Name of the codec</li>
+              <li>Authors</li>
+              <li>Challenge type</li>
+              <li>Code rate of the codec</li>
+              <li>DOI of the manuscript (optional)</li>
+              <li>Link to a repository containing the code (optional)</li>
+              <li>Description of the codec (optional)</li>
+          </ul>
+          We will then verify your submission and add it to the leaderboard.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            How is the code rate determined?
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            The code rate is determined from the codec's output, neglecting constant regions (e.g., constant adapters added to aid strand reassembly). Note however, that this definition does include any nucleotides added for error correction or indexing.
+          </div>
+        </div>
+      </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          What does 'verified' mean for a submission?
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          If a submission is marked as 'verified', it means that the submission has been checked by us and fulfills the requirements described <a href="{% url 'basic:challenge' %}">here</a>. If a submission is marked as 'not verified', it means that the submission has not been checked by us yet and its results are only based on the authors' claims.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          How can I test my codec for these challenges?
+        </button>
+      </h2>
+      <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            You can test your codec for the challenges by running them <a href="{% url 'jobs:challenge' %}">online</a> or <a href="https://github.com/fml-ethz/dt4dds-challenges">offline</a>. For more information, please visit the <a href="{% url 'basic:challenge' %}">challenges information page</a>. Note that the requirements for the leaderboard submissions outlined there will require offline testing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock content_body %}

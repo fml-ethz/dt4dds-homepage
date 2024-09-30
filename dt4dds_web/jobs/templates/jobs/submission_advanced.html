@@ -1,0 +1,599 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+
+<script>
+
+	function validateSequences() {
+		var seqs_field = document.getElementById('id_sequences_raw');
+		var raw_seqs = seqs_field.value;
+		var raw_seqs_list = raw_seqs.split(/\r?\n/);
+
+		// check if unallowed characters
+		var chars_valid = !(new RegExp("[^ACGT]").test(raw_seqs_list.join('')));
+
+		// check for number of sequences
+		var number_valid = !(raw_seqs_list.length > 10000);
+
+		// check for length of sequences
+		var lgth = 0;
+		for (var i = 0; i < raw_seqs_list.length; i++) {
+			if (raw_seqs_list[i].length > lgth) {
+				var lgth = raw_seqs_list[i].length;
+			}
+		}
+		var length_valid = !(lgth > 150);
+
+		if (chars_valid & number_valid & length_valid) {
+			seqs_field.classList.remove("is-invalid")
+			return true;
+		} else {
+			seqs_field.classList.add("is-invalid")
+			seqs_field.classList.remove("is-valid")
+			return false;
+		}
+	}
+
+
+	function updateSeqStats() {
+		try {
+			var seqs_field = document.getElementById('id_sequences_raw');
+			var raw_seqs = seqs_field.value;
+			var raw_seqs_list = raw_seqs.split(/\r?\n/);
+
+			// GC content
+			var GC_content = (raw_seqs_list.join()).match(/[GC]/g).length/raw_seqs_list.join().length;
+
+			// number of sequences
+			var n_seqs = raw_seqs_list.length;
+
+			// length of sequences
+			var lgth = 0;
+			for (var i = 0; i < raw_seqs_list.length; i++) {
+				if (raw_seqs_list[i].length > lgth) {
+					var lgth = raw_seqs_list[i].length;
+				}
+			}
+		} catch (error) {
+			var GC_content = 0;
+			var n_seqs = 0;
+			var lgth = 0;
+		};
+		
+		document.getElementById('sequences-GC').textContent = Math.round(100*GC_content) + "%";
+		document.getElementById('sequences-count').textContent = n_seqs;
+		document.getElementById('sequences-length').textContent = lgth;
+	}
+
+	
+
+	function clearSeqs() {
+		document.getElementById('id_sequences_raw').value = "";
+		updateSeqStats();
+	}
+
+	function randomSeqs() {
+		var results = [];
+		for (let j = 0; j < 100; j++) {
+			var result = '';
+			var characters = 'ACGT';
+			for (let i = 0; i < 100; i++) {
+				result += characters.charAt(Math.floor(4*Math.random()));
+			}
+			results.push(result)
+		}
+		document.getElementById('id_sequences_raw').value = results.join("\n");
+		updateSeqStats();
+	}
+
+
+
+	function updateErrorStats() {
+		try {
+			var subs = 0;
+			var pcr_cycles = document.getElementById('id_pcr_cycles').value;
+			var polymerase_type = document.getElementById('id_pcr_polymerase').value;
+			switch(polymerase_type) {
+			case "TAQ":
+				var fidelity = 1;
+				break;
+			case "HFi":
+				var fidelity = 40;
+				break;
+			case "Q5H":
+				var fidelity = 280;
+				break;
+			case "EXO":
+				var fidelity = 0.3;
+				break;
+			default:
+				var fidelity = 1;
+			}
+			subs = pcr_cycles*0.000109/fidelity + 0.0025;
+
+		} catch (error) {
+			var subs = 0;
+		}
+		
+		try {
+			var dels = 0;
+			var synthesis_type = document.getElementById('id_synthesis_type').value;
+			switch(synthesis_type) {
+			case "EC":
+				dels = 0.016;
+				break;
+			case "MD":
+				dels = 0.0006;
+				break;
+			default:
+				dels = 0;
+			}
+
+		} catch (error) {
+			var dels = 0;
+		}
+
+
+		var ins = 0;
+
+
+
+		try {
+			var bias = 0;
+			var synthesis_type = document.getElementById('id_synthesis_type').value;
+			var synthesis_homogeneity = document.getElementById('id_synthesis_homogeneity').value;
+			switch(synthesis_type) {
+			case "EC":
+				bias = 1.30 - synthesis_homogeneity*(1.30-0.58);
+				break;
+			case "MD":
+				bias = 0.30 - synthesis_homogeneity*(0.30-0.27);
+				break;
+			default:
+				bias = 0;
+			}
+
+			var pcr_cycles = document.getElementById('id_pcr_cycles').value;
+			var pcr_homogeneity = 0.0051+document.getElementById('id_pcr_homogeneity').value*(0.012-0.0051);
+
+			bias = Math.sqrt(bias**2 + (pcr_cycles*pcr_homogeneity)**2)
+
+		} catch (error) {
+			var bias = 0;
+		}
+		
+		document.getElementById('errorprofile-substitutions').textContent = (100*subs).toFixed(1) + "%";
+		document.getElementById('errorprofile-deletions').textContent = (100*dels).toFixed(1) + "%";
+		document.getElementById('errorprofile-insertions').textContent = (100*ins).toFixed(1) + "%";
+		document.getElementById('errorprofile-bias').textContent = bias.toFixed(2);
+	}
+
+	function attachToClass( classname, function_call ) {
+		var selection = document.getElementsByClassName(classname);
+		for(var i = 0; i < selection.length; i++) {
+			(function(index) {
+				selection[index].addEventListener("input", function_call)
+			})(i);
+			}
+	}
+
+	updateErrorStats();
+	updateSeqStats()
+	attachToClass('form-control', function() { updateErrorStats(); })
+	attachToClass('form-select', function() { updateErrorStats(); })
+	attachToClass('form-range', function() { updateErrorStats(); })
+	attachToClass('form-check-input', function() { updateErrorStats(); })
+
+	document.getElementById('id_sequences_raw').addEventListener('input', function() { validateSequences(); updateSeqStats(); });
+
+
+	// Example starter JavaScript for disabling form submissions if there are invalid fields
+	(function() {
+	  'use strict';
+	  window.addEventListener('load', function() {
+		// Fetch all the forms we want to apply custom Bootstrap validation styles to
+		var forms = document.getElementsByClassName('needs-validation');
+		// Loop over them and prevent submission
+		var validation = Array.prototype.filter.call(forms, function(form) {
+		  form.addEventListener('submit', function(event) {
+			if (!validateSequences() || !form.checkValidity()) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			form.classList.add('was-validated');
+		  }, false);
+		});
+	  }, false);
+	})();
+</script>
+
+{% endblock add_foot %}
+
+{% block content_body %}
+
+{% load widget_tweaks %}
+
+<form class="needs-validation" action="{% url 'jobs:advanced' %}" method="post" novalidate>
+
+	{% csrf_token %}
+
+	<div class="row g-3">
+
+		<div class="col-sm-12 pb-2">
+			<label for="{{ form.name.id_for_label }}" class="form-label">Job name</label>
+			<div class="input-group has-validation">
+				{% if form.name.errors %}
+					{{ form.name|add_class:"form-control is-invalid" }}
+				{% else %}
+					{{ form.name|add_class:"form-control" }}
+				{% endif %}
+				<div class="invalid-feedback">
+					A valid submission name is required. {{ form.name.errors }}
+				</div>
+			</div>
+			<small class="form-text text-muted">
+				Choose a name for your submission.
+			</small>
+		</div>
+		
+
+		<div class="col-sm-9 pb-2">
+			<label for="{{ form.sequences_raw.id_for_label }}" class="form-label">Design sequences</label>
+			<div class="input-group has-validation">
+				{% if form.sequences_raw.errors %}
+					{{ form.sequences_raw|add_class:"form-control is-invalid font-monospace"|attr:"placeholder:Paste your oligo sequences here" }}
+				{% else %}
+					{{ form.sequences_raw|add_class:"form-control font-monospace"|attr:"placeholder:Paste your oligo sequences here" }}
+				{% endif %}
+				<div class="invalid-feedback">
+					Please provide a valid set of oligo sequences. They may only contain A, C, G, and T. At most 10000 sequences with up to 150 nucleotides each are allowed.
+				</div>
+			</div>
+		</div>
+		
+		<div class="col-sm-3 pb-2 align-self-end">
+			<table class="table table-borderless table-sm">
+				<tbody>
+					<tr>
+						<td class="text-end" style="padding: 0;"><small class="text-muted">#oligos</small></td>
+						<td class="text-end" style="padding: 0;"><small class="text-muted" id="sequences-count">0</small></td>
+					</tr>
+					<tr>
+						<td class="text-end" style="padding: 0;"><small class="text-muted">max. length</small></td>
+						<td class="text-end" style="padding: 0;"><small class="text-muted" id="sequences-length">0</small></td>
+					</tr>
+					<tr>
+						<td class="text-end" style="padding: 0;"><small class="text-muted">avg. GC</small></td>
+						<td class="text-end" style="padding: 0;"><small class="text-muted" id="sequences-GC">0%</small></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="w-100 btn btn-outline-secondary btn-sm" onclick="randomSeqs();">Random</div>
+			<div class="w-100 btn btn-outline-secondary btn-sm mt-2" onclick="clearSeqs();">Clear</div>
+		</div>
+		
+		<small class="form-text text-muted">
+			Provide the oligo sequences for simulation. Enter each oligo on its own line. Limited to 10000 oligos of max. 150 nt each.
+		</small>
+
+	</div>
+
+	<div class="row g-5 pt-5">
+		<div class="col-md-7 col-lg-8">
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="synthesis-tab" data-bs-toggle="tab" data-bs-target="#synthesis"
+						type="button" role="tab" aria-controls="home" aria-selected="true">Synthesis</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="pcr-tab" data-bs-toggle="tab" data-bs-target="#pcr" type="button"
+						role="tab" aria-controls="amplification" aria-selected="false">PCR</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="aging-tab" data-bs-toggle="tab" data-bs-target="#aging" type="button"
+						role="tab" aria-controls="aging" aria-selected="false">Aging</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="sequencing-tab" data-bs-toggle="tab" data-bs-target="#sequencing"
+						type="button" role="tab" aria-controls="sequencing" aria-selected="false">Sequencing</button>
+				</li>
+			</ul>
+			<div class="tab-content pt-4 pb-4 px-3 bg-white border border-top-0 rounded-bottom" id="TabContent">
+				<div class="tab-pane fade show active" id="synthesis" role="tabpanel" aria-labelledby="synthesis-tab">
+					<div class="row g-3">
+
+						<div class="col-12 pb-3">
+							<label for="{{ form.synthesis_type.id_for_label }}" class="form-label">Synthesis platform</label>
+							<div class="input-group has-validation">
+								{{ form.synthesis_type|add_class:"form-select" }}
+								<div class="invalid-feedback">
+									A valid synthesis platform is required. {{ form.synthesis_type.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Select the type of synthesis provider to be used.
+							</small>
+						</div>
+
+
+						<div class="col-sm-6 pb-3">
+							<label for="{{ form.synthesis_coverage.id_for_label }}" class="form-label">Mean coverage</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">#</span>
+								{{ form.synthesis_coverage|add_class:"form-control"|attr:"min:1"|attr:"max:500" }}
+								<div class="invalid-feedback">
+									Mean synthesis coverage must be a positive integer. {{ form.synthesis_coverage.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose the mean number of oligos per sequence after synthesis.
+							</small>
+						</div>
+
+						<div class="col-sm-6">
+							<label for="{{ form.synthesis_homogeneity.id_for_label }}" class="form-label">Coverage homogeneity</label><br>
+							<label for="" class="float-start text-muted fw-light"><small>Worst case</small></label>
+							<label for="" class="float-end text-muted fw-light"><small>Best case</small></label>
+							<div class="input-group has-validation">
+								{{ form.synthesis_homogeneity|add_class:"form-range"|attr:"type:range"|attr:"min:0"|attr:"max:1"|attr:"step:0.25" }}
+								<div class="invalid-feedback">
+									Valid synthesis homogeneity is required.
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose the homogeneity of the coverage distribution after synthesis.
+							</small>
+						</div>
+					</div>
+
+
+				</div>
+
+				<div class="tab-pane fade" id="pcr" role="tabpanel" aria-labelledby="pcr-tab">
+
+
+					<div class="row g-3">
+
+						<div class="col-12 pb-3">
+							<label for="{{ form.pcr_polymerase.id_for_label }}" class="form-label">Polymerase</label>
+							<div class="input-group has-validation">
+								{{ form.pcr_polymerase|add_class:"form-select" }}
+								<div class="invalid-feedback">
+									Choose a valid polymerase type. {{ form.pcr_polymerase.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Select the type of polymerase for the amplification.
+							</small>
+						</div>
+
+						<div class="col-sm-6 pb-3">
+							<label for="{{ form.pcr_efficiency.id_for_label }}" class="form-label">Mean efficiency</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">%</span>
+								{{ form.pcr_efficiency|add_class:"form-control"|attr:"placeholder:Choose a PCR efficiency"|attr:"min:50"|attr:"max:100" }}
+								<div class="invalid-feedback">
+									Mean PCR efficiency must be between 50% and 100%. {{ form.pcr_efficiency.errors }}
+								</div>
+								<small class="form-text text-muted">
+									Select the mean efficiency during amplification.
+								</small>
+							</div>
+						</div>
+						
+						<div class="col-sm-6">
+							<label for="{{ form.pcr_homogeneity.id_for_label }}" class="form-label">Efficiency distribution</label><br>
+							<label for="" class="float-start text-muted fw-light"><small>Narrow</small></label>
+							<label for="" class="float-end text-muted fw-light"><small>Wide</small></label>
+							<div class="input-group has-validation">
+								{{ form.pcr_homogeneity|add_class:"form-range"|attr:"type:range"|attr:"min:0"|attr:"max:1"|attr:"step:0.25" }}
+								<div class="invalid-feedback">
+									Valid efficiency bias is required. {{ form.pcr_homogeneity.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose the homogeneity of the efficiency distribution.
+							</small>
+						</div>
+
+						<div class="col-sm-12">
+							<label for="{{ form.pcr_cycles.id_for_label }}" class="form-label">Number of cycles</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">#</span>
+								{{ form.pcr_cycles|add_class:"form-control"|attr:"placeholder:Choose number of PCR cycles"|attr:"min:0"|attr:"max:120" }}
+								<div class="invalid-feedback">
+									Number of PCR cycles must be between 0 and 120. {{ form.pcr_cycles.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Total number of PCR cycles to simulate.
+							</small>
+						</div>
+
+
+					</div>
+
+
+
+
+				</div>
+
+
+
+
+				<div class="tab-pane fade" id="aging" role="tabpanel" aria-labelledby="aging-tab">
+
+					<div class="row g-3">
+
+						<div class="col-12 pb-3">
+							<div class="input-group has-validation">
+								<div class="form-check form-switch">
+									{{ form.storage_enabled|add_class:"form-check-input" }}
+									<label class="form-check-label">Simulate long-term storage</label>
+								</div>
+								<div class="invalid-feedback">
+									Choose whether to simulate decay during aging. {{ form.storage_enabled.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose whether to include aging in the simulation.
+							</small>
+						</div>
+
+						<div class="col-sm-6 pb-3">
+							<label for="{{ form.storage_coverage.id_for_label }}" class="form-label">Initial coverage</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">#</span>
+								{{ form.storage_coverage|add_class:"form-control"|attr:"placeholder:Choose a coverage"|attr:"min:1"|attr:"max:200" }}
+								<div class="invalid-feedback">
+									Initial coverage must be between 1 and 200. {{ form.storage_coverage.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose the mean coverage just prior to aging.
+							</small>
+						</div>
+						
+						<div class="col-sm-6">
+							<label for="{{ form.storage_halflives.id_for_label }}" class="form-label">Aging duration</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">τ</span>
+								{{ form.storage_halflives|add_class:"form-control"|attr:"placeholder:Choose a storage duration"|attr:"min:0"|attr:"max:10" }}
+								<div class="invalid-feedback">
+									Number of half-lives must be between 0 and 10. {{ form.storage_halflives.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Select the extent of aging via the number of half-lives of decay.
+							</small>
+						</div>
+
+
+					</div>
+
+
+
+
+
+
+
+
+
+				</div>
+
+
+
+				<div class="tab-pane fade" id="sequencing" role="tabpanel" aria-labelledby="sequencing-tab">
+					
+					
+					<div class="row g-3">
+
+						<div class="col-12 pb-3">
+							<label for="{{ form.sequencing_depth.id_for_label }}" class="form-label">Sequencing depth</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">#</span>
+								{{ form.sequencing_depth|add_class:"form-control"|attr:"placeholder:Choose a sequencing depth"|attr:"min:1"|attr:"max:50" }}
+								<div class="invalid-feedback">
+									Sequencing depth must be between 1 and 50. {{ form.sequencing_depth.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Choose the mean number of reads per sequence during sequencing.
+							</small>
+						</div>
+
+						<div class="col-sm-6 pb-3">
+							<label for="{{ form.sequencing_length.id_for_label }}" class="form-label">Read length</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">nt</span>
+								{{ form.sequencing_length|add_class:"form-control"|attr:"placeholder:Choose a sequencing length"|attr:"min:30"|attr:"max:300" }}
+								<div class="invalid-feedback">
+									Sequencing length must be between 30 and 300. {{ form.sequencing_length.errors }}
+								</div>
+							</div>
+							<small class="form-text text-muted">
+								Select the read length during sequencing.
+							</small>
+						</div>
+						
+						<div class="col-sm-6 pb-3 align-self-end">
+							<div class="input-group has-validation pt-3">
+								<div class="form-check form-switch pb-1">
+									{{ form.sequencing_paired|add_class:"form-check-input" }}
+									<label class="form-check-label">Paired reads</label>
+								</div>
+								<div class="invalid-feedback">
+									Choose whether to perform paired reads. {{ form.sequencing_paired.errors }}
+								</div>
+								<small class="form-text text-muted">
+									Choose whether paired reads are used during sequencing.
+								</small>
+							</div>
+						</div>
+
+
+					</div>
+
+					
+				
+				
+				</div>
+			
+			
+			
+			
+			</div>
+
+		</div>
+
+		<div class="col-md-5 col-lg-4">
+			<div class="mb-2">
+				<h4 class="mb-0">
+					<span class="">Error profile</span><br>
+				</h4>
+				<span><small class="text-muted fw-light">Estimated from settings</small></span>
+			</div>
+			<ul class="list-group mb-3">
+				<li class="list-group-item d-flex justify-content-between lh-sm">
+					<div>
+						<h6 class="my-0">Substitutions</h6>
+						<small class="text-muted fw-light">PCR & Sequencing</small>
+					</div>
+					<span class="text-muted align-self-center" id="errorprofile-substitutions">1.2%</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between lh-sm">
+					<div>
+						<h6 class="my-0">Deletions</h6>
+						<small class="text-muted fw-light">Synthesis</small>
+					</div>
+					<span class="text-muted align-self-center" id="errorprofile-deletions">1.2%</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between lh-sm">
+					<div>
+						<h6 class="my-0">Insertions</h6>
+						<small class="text-muted fw-light">negligible</small>
+					</div>
+					<span class="text-muted align-self-center" id="errorprofile-insertions">0.0%</span>
+				</li>
+				<li class="list-group-item d-flex justify-content-between lh-sm">
+					<div>
+						<h6 class="my-0">Coverage bias</h6>
+						<small class="text-muted fw-light">Synthesis & PCR</small>
+					</div>
+					<span class="text-muted align-self-center" id="errorprofile-bias">0.53</span>
+				</li>
+			</ul>
+			<br>
+			<button class="w-100 btn btn-primary btn-lg" type="submit">Submit job</button>
+
+		</div>
+	</div>
+</form>
+
+
+{% endblock content_body %}

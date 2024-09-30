@@ -1,0 +1,69 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+{% endblock add_foot %}
+
+{% block content_body %}
+
+<div class="col-xs-1" align="center">
+<h1><strong>#{{ position }}</strong> {{ entry.name }}</h1>
+{% if entry.is_verified %}
+<span class="badge bg-success">Verified</span>
+{% else %}
+<span class="badge bg-warning">Not verified</span>
+{% endif %}
+<br><br>
+
+<table class="table w-75 align-middle">
+    <tbody>
+        <tr>
+            <th scope="row">Name</th>
+            <td>{{ entry.name }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Authors</th>
+            <td>{{ entry.authors }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Code rate</th>
+            <td>{{ entry.code_rate|floatformat:2 }} bit/nt</td>
+        </tr>
+        <tr>
+            <th scope="row">Rank</th>
+            <td>#{{ position }} in Challenge "{{ entry.leaderboard.name }}"</td>
+        </tr>
+        <tr>
+            <th scope="row">Date</th>
+            <td>{{ entry.submission_date|date:"N d, Y" }}</td>
+        </tr>
+        <tr>
+            <th scope="row">DOI</th>
+            <td>{{ entry.doi }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Repository</th>
+            <td>{{ entry.repository }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Description</th>
+            <td>{{ entry.description|linebreaks }}</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <br>
+  <a href="{% url 'leaderboard:overview' %}"><button type="button" class="btn btn-outline-secondary">Return to leaderboard overview</button></a>
+
+
+<p class="lead">
+    
+</p>
+
+</div>
+
+
+{% endblock content_body %}

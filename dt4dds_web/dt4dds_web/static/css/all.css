@@ -1,0 +1,10 @@
+/* Move container below navbar */
+body > .content {
+    width: 100%;
+    max-width: 920px;
+}
+
+#id_sequences_raw {
+    overflow-wrap: normal;
+    resize: none;
+}

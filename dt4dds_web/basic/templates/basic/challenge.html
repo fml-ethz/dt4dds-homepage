@@ -1,0 +1,92 @@
+{% extends 'content.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+{% endblock add_foot %}
+
+{% block content_body %}
+
+<p class="fs-4 text-muted" style="text-align: justify;">
+    The DT4DDS-Challenges are a standardized benchmark for error-correction codes for two current challenges in DNA Data Storage: photolithographic synthesis and DNA decay.
+</p>
+
+<p class="lead">
+    To aid the development of error-correction codes for these workflows, they were implemented into the Digital Twin for DNA Data Storage (DT4DDS). This <it>in-silico</it> tool allows simulating the error patterns and biases present in these workflows and can be used to develop, debug and benchmark different codecs without laboratory experiments. The DT4DDS-Challenges are based on the error characterization of these workflows presented in our manuscript and are designed to reproduce their error patterns and biases realistically. The challenges are available online and offline, and submissions can be added to the leaderboard for comparison with other codecs. 
+</p>
+<p class="lead">
+    For more information on the challenges and the data analysis, please refer to the following publications:
+</p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. Challenges for error-correction coding in DNA data storage: photolithographic synthesis and DNA decay. bioRxiv 2024.07.04.602085 (2024). <a href="https://doi.org/10.1101/2024.07.04.602085">DOI:10.1101/2024.07.04.602085</a>
+</code></p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. A digital twin for DNA data storage based on comprehensive quantification of errors and biases. Nat Commun 14, 6026 (2023). <a href="https://doi.org/10.1038/s41467-023-41729-1">DOI:10.1038/s41467-023-41729-1</a>
+</code></p>
+
+<br>
+<h1 class="display-6 lh-1 mb-3" style="text-align: left;">Running the challenges</h1>
+<p class="lead">
+    The DT4DDS-Challenges are implemented both into a web-based tool and a standalone C++ routine. The <a href="{% url 'jobs:challenge' %}">web-based tool</a> allows you to run the challenges directly online, starting from your DNA sequences, without any prerequisites. The standalone tool can be used to run the challenges offline and at larger scales, and is available on <a href="https://github.com/fml-ethz/dt4dds-challenges">GitHub</a>.
+    For detailed instructions on how to run the challenges offline, please refer to the README in the GitHub repository.
+</p>
+<div class="d-flex justify-content-around flex-wrap">
+    <a href="{% url 'jobs:challenge' %}"><button type="button" class="btn btn-outline-primary mb-3">Run a challenge online</button></a>
+    <a href="https://github.com/fml-ethz/dt4dds-challenges"><button type="button" class="btn btn-outline-primary mb-3">GitHub repository</button></a>
+</div>
+
+<br>
+<h1 class="display-6 lh-1 mb-3" style="text-align: left;">Challenge definitions and requirements</h1>
+<p class="lead">
+    The challenges are based on the two current challenges in DNA data storage: photolithographic DNA synthesis and DNA decay.
+    Based on the error characterization of these workflows presented in our manuscript, the challenges are defined as follows:
+</p>
+<ul style="font-weight: 300;">
+    <li><strong>Photolithographic DNA synthesis:</strong> Application in a DNA-of-things context, assuming errors representative of photolithographic synthesis (i.e., 0.075 deletions per nt, 0.012 insertions per nt, and 0.025 substitutions per nt) with a high physical coverage (200 oligos per design sequence) and sequencing depth (50 reads per design sequence). In addition, the beginning and end of each sequence are randomly truncated. </li>
+    <li><strong>DNA decay:</strong> Recovery of oligo fragments after long-term storage, assuming the very low error rates from state-of-the-art commercial synthesis and high-fidelity PCR (i.e., 0.0007 deletions per nt, and 0.0049 substitutions per nt), but at very low physical coverage (only 10 oligos per design sequence) and oligo breakage equivalent to around five half-lives of storage (i.e., 0.023 breakages per nt). In addition, the sequencing depth (50 reads per design sequence) is low, and the sequencing data is biased against short oligo fragments.</li>
+</ul>
+<p class="lead">
+    In both challenges, error-correction codes must efficiently use the available redundancy in the sequencing reads to achieve successful data recovery at high code rates. For detailed information on the error patterns and biases in these challenges, please refer to our manuscript.
+</p>
+<p class="lead">
+    As both challenges include a hard combinatorial problem affecting scaling with data size, the following requirements must also be fulfilled for submissions to the leaderboard:
+</p>
+<ul style="font-weight: 300;">
+    <li><strong>Input file:</strong> An uncompressible input file of 10 MB must be used for benchmarking (<a href="{% static 'benchmark_file' %}">example</a>).</li>
+    <li><strong>DNA design:</strong> The length of individual sequences may not exceed 300 nt (Challenge on DNA decay) or 80 nt (Challenge on photolithographic synthesis).</li>
+    <li><strong>Time limit:</strong> Full recovery (i.e., byte-by-byte identity) of the input file, starting from the sequencing data, must complete within one hour.</li>
+    <li><strong>Resources:</strong> The data recovery must be run on standard, consumer-grade hardware (e.g., 16 cores, 32 GB RAM).</li>
+    <li><strong>Code rate:</strong> The determination of the codec's code rate neglects constant regions (e.g., constant adapters added to aid strand reassembly).</li>
+</ul>
+<p class="lead">
+    Due to these requirements, simulations for the leaderboard cannot be run online and must be executed offline (see instructions above and in the <a href="https://github.com/fml-ethz/dt4dds-challenges">GitHub repository</a>). You can still use the online tool for initial testing and debugging at smaller scales.
+</p>
+<div class="d-flex justify-content-around flex-wrap">
+    <a href="{% static 'benchmark_file' %}"><button type="button" class="btn btn-outline-primary mb-3">Download benchmark file</button></a>
+    <a href="https://doi.org/10.1101/2024.07.04.602085"><button type="button" class="btn btn-outline-primary mb-3">To the manuscript</button></a>
+</div>
+
+
+
+
+<br>
+<h1 class="display-6 lh-1 mb-3" style="text-align: left;">Submission to the leaderboard</h1>
+<p class="lead">
+    Before submitting your codec, make sure your submission fulfills the requirements described above.
+    If you are ready to submit your codec, please send an email with the following information to <a href="https://fml.ethz.ch/people/lecturer.html">Prof. Dr. Robert Grass</a> and <a href="https://fml.ethz.ch/people/PhDs/AG.html">Andreas Gimpel</a>:
+</p>
+<ul style="font-weight: 300;">
+    <li>Name of the codec</li>
+    <li>Authors</li>
+    <li>Challenge type</li>
+    <li>Code rate of the codec</li>
+    <li>DOI of the manuscript (optional)</li>
+    <li>Link to a repository containing the code (optional)</li>
+    <li>Description of the codec (optional)</li>
+</ul>
+<p class="lead">
+    We will then verify your submission and add it to the <a href="{% url 'leaderboard:overview' %}">leaderboard</a>.
+</p>
+
+{% endblock content_body %}

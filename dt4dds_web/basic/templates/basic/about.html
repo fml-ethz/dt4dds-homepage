@@ -1,0 +1,69 @@
+{% extends 'content.html' %}
+{% load i18n %}
+
+{% block add_head %}
+{% endblock add_head %}
+
+{% block add_foot %}
+{% endblock add_foot %}
+
+{% block content_body %}
+
+<p class="fs-4 text-muted" style="text-align: justify;">
+    Digital Twin For DNA Data Storage (DT4DDS) is a customizable, digital representation of widely-used DNA data storage workflows, enabling data-driven experimental design and rational design of redundancy.
+</p>
+
+<p class="lead">
+    DT4DDS is offered both as a web-based service and a Python package providing a digital representation of DNA data storage workflows involving array synthesis, PCR, Aging, and Sequencing-By-Synthesis. By modelling each part of such user-defined workflows with fully customizable experimental parameters, it supports experimental design and aids in the design of redundancy for error-correction coding. DT4DDS also includes a pipeline for comprehensively analyzing errors in sequencing data, both from experiments and simulation.
+</p>
+<p class="lead">
+    DT4DDS is based on the following publications:
+</p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. A digital twin for DNA data storage based on comprehensive quantification of errors and biases. Nat Commun 14, 6026 (2023). <a href="https://doi.org/10.1038/s41467-023-41729-1">DOI:10.1038/s41467-023-41729-1</a>
+</code></p>
+<p class="px-5"><code style="color:black;">Gimpel, A.L., Stark, W.J., Heckel, R., Grass R.N. Challenges for error-correction coding in DNA data storage: photolithographic synthesis and DNA decay. bioRxiv 2024.07.04.602085 (2024). <a href="https://doi.org/10.1101/2024.07.04.602085">DOI:10.1101/2024.07.04.602085</a>
+</code></p>
+
+
+<div class="container col-xxl-12 py-2">
+    <div class="row flex-lg-row-reverse align-items-center py-1">
+      <div class="col-12 col-sm-12 col-lg-6 px-0">
+        <img src="/static/abstrac.svg" class="d-block mx-lg-auto img-fluid" loading="lazy">
+      </div>
+      <div class="col-lg-6 px-0">
+        <h1 class="display-6 lh-1 mb-3">Digital Twin</h1>
+        <p class="lead">
+            By combining a thorough quantification of the error sources with a customizable process model and analysis pipeline, DT4DDS can reproduce and predict experimental results. For more details on the error quantification and the approach, please refer to the manuscript.
+        </p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="https://doi.org/10.1038/s41467-023-41729-1">
+                <button type="button" class="w-100 btn btn-lg btn-outline-primary">Manuscript</button>
+              </a>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+<div class="container col-xxl-12 py-2">
+    <div class="row flex-lg-row-reverse align-items-center py-1">
+      <div class="col-12 col-sm-12 col-lg-6 px-0">
+        <img src="/static/code.svg" class="d-block mx-lg-auto img-fluid" loading="lazy">
+      </div>
+      <div class="col-lg-6 px-0">
+        <h1 class="display-6 lh-1 mb-3">Python Package</h1>
+        <p class="lead">Running DT4DDS locally allows for custom workflows and full control over experimental parameters. For the full code and more information on how to use DT4DDS in Python, please visit the GitHub repository.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="https://github.com/fml-ethz/dt4dds">
+                <button type="button" class="w-100 btn btn-lg btn-outline-primary">GitHub repository</button>
+              </a>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content_body %}
